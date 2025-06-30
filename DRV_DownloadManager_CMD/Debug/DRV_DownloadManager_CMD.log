@@ -1,0 +1,19 @@
+﻿  CommPortDM.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(169,1): error C1189: #error:  "No Target Architecture"
+  (compilazione del file di origine 'CommPortDM.cpp')
+  
+  CommPortDM_Thread.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(169,1): error C1189: #error:  "No Target Architecture"
+  (compilazione del file di origine 'CommPortDM_Thread.cpp')
+  
+  DRV_DownloadManager_CMD.cpp
+  CommPortDMError.cpp
+  XMCLoad.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(169,1): error C1189: #error:  "No Target Architecture"
+  (compilazione del file di origine 'XMCLoad.cpp')
+  
+  XMCLoad_API.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(169,1): error C1189: #error:  "No Target Architecture"
+  (compilazione del file di origine 'XMCLoad_API.cpp')
+  
+  Generazione del codice in corso...
