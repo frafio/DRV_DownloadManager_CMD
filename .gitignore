@@ -1,0 +1,7 @@
+.vs/DRV_DownloadManager_CMD/v17/ipch/
+*.tlog
+*.log
+.vs/DRV_DownloadManager_CMD/v17/Browse.VC.db
+DRV_DownloadManager_CMD/x64/
+DRV_DownloadManager_CMD/Release/
+x64/

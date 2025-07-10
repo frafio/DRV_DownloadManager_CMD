@@ -95,7 +95,7 @@ int XMCLoad(void* handle, CommPortDM_Thread* thread, CommPortDM* pcom, const cha
 {
 	unsigned int result;
 	/****************** check the Falsh protection status   *****************/
-	std::cerr <<"\nCheck Flash protection status... " << std::endl;
+	std::cout <<"\nCheck Flash protection status... " << std::endl;
 	//DRVDownloadManager::MainForm::MainForm_ToOutputTbx("\nCheck Flash protection status... ",true);
 	bslHeader.mode = BSL_PROTECT_STATUS;
 	bslHeader.flashModule = 0x00;

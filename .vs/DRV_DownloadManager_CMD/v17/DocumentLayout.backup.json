@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Work\\VS_workspace\\DRV_DownloadManager_CMD\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E447B903-5C77-4124-A721-DD6C6C6AAE1E}|DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.vcxproj|C:\\Work\\VS_workspace\\DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E447B903-5C77-4124-A721-DD6C6C6AAE1E}|DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.vcxproj|solutionrelative:DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 351,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DRV_DownloadManager_CMD.cpp",
+              "DocumentMoniker": "C:\\Work\\VS_workspace\\DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.cpp",
+              "RelativeDocumentMoniker": "DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.cpp",
+              "ToolTip": "C:\\Work\\VS_workspace\\DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.cpp",
+              "RelativeToolTip": "DRV_DownloadManager_CMD\\DRV_DownloadManager_CMD.cpp",
+              "ViewState": "AgIAAFAAAAAAAAAAAAAAAFYAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-09T12:57:51.618Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -638,7 +638,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 	if ((result = XMCLAPI_Bl_Erase_Flash(handle, pcom, bslDownload)) != BSL_NO_ERROR)
 		return result;
 
-	cerr << "\nFlash erased " << endl;
+	cout << "\nFlash erased " << endl;
 	//DRVDownloadManager::MainForm::MainForm_ToOutputTbx("\nFlash erased ", true);
 	/* Open the existing file specified for reading */
 	/* Note the use of \\ for path separators in text strings */
@@ -724,7 +724,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 
 				if (sizeEndFile <= 0) {
 					sprintf_s(outputstr, "readch EOF at 0x%08X ", page_addr);
-					std::cerr << outputstr << std::endl;
+					std::cout << outputstr << std::endl;
 					break;
 			}
 
@@ -745,9 +745,11 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 					writeBuffer[j] = hexArray[j];
 
 				if (bslDownload.verbose) {
-					sprintf_s(outputstr, "\nProgramming data block to address 0x%08X ", page_addr);
-					std::cerr << outputstr << std::endl;
-					//DRVDownloadManager::MainForm::MainForm_ToOutputTbx(outputstr, true);
+					if ((tot_num_bytes % 65536) == 0) {
+						sprintf_s(outputstr, "\nProgramming data block to address 0x%08X ", page_addr);
+						std::cout << outputstr << std::endl;
+						//DRVDownloadManager::MainForm::MainForm_ToOutputTbx(outputstr, true);
+					}
 				}
 
 				if (bslDownload.ser_interface == ASC_INTERFACE)
@@ -833,7 +835,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 
 							if (bslDownload.verbose) {
 								sprintf_s(outputstr, "\nProgramming data block to address 0x%08X ", page_addr);
-								std::cerr << outputstr<< std::endl;
+								std::cout << outputstr<< std::endl;
 								////DRVDownloadManager::MainForm::MainForm_ToOutputTbx(outputstr, true);
 							}
 							if (bslDownload.ser_interface == ASC_INTERFACE)
@@ -851,7 +853,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 
 						//send EOT frame
 						sprintf_s(outputstr, "\nSend EOT");
-						std::cerr << outputstr<< std::endl;
+						std::cout << outputstr<< std::endl;
 						if (bslDownload.ser_interface == ASC_INTERFACE)
 							result = XMCLAPI_Bl_Send_EOT(pcom);
 						else
@@ -876,7 +878,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 
 					if (bslDownload.ser_interface == ASC_INTERFACE) {
 						sprintf_s(outputstr, "\nSend header 0x%08X ", temp_addr);
-						std::cerr << outputstr<< std::endl;
+						std::cout << outputstr<< std::endl;
 						result = XMCLAPI_Bl_Send_Header(pcom, bslHeader);
 					}
 					else
@@ -931,7 +933,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 
 					if (bslDownload.verbose) {
 						sprintf_s(outputstr, "\nProgramming data block to address 0x%08X ", page_addr);
-						std::cerr << outputstr << std::endl;
+						std::cout << outputstr << std::endl;
 					}
 
 					if (bslDownload.ser_interface == ASC_INTERFACE)
@@ -990,7 +992,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 
 		if (bslDownload.verbose) {
 			sprintf_s(outputstr, "\nProgramming data block to address 0x%08X ", page_addr);
-			std::cerr << outputstr<<std::endl;
+			std::cout << outputstr<<std::endl;
 		}
 		if (bslDownload.ser_interface == ASC_INTERFACE)
 			result = XMCLAPI_Bl_Send_Data(pcom, bslData);
@@ -1018,7 +1020,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 		fclose(hexFile);
 	}
 
-	std::cerr << "\nApp write SUCCESS" << std::endl;
+	std::cout << "\nApp write SUCCESS" << std::endl;
 
 	return BSL_NO_ERROR;
 

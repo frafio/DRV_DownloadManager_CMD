@@ -45,9 +45,13 @@ bool getComPorts(string com_port);
 
 int main(int argc, char* argv[]) {
 
-	bool success = false;
 	double duration = 10;
+	const char* com_port = argv[1];
+	const char* type_file = argv[2];
+	const char* filePath = argv[3];
 
+	bool port_found = false;
+	int success_int_value = 1;
 
 	// Simulate some work
 
@@ -57,19 +61,15 @@ int main(int argc, char* argv[]) {
 		std::cerr << "Where type : -p :PLC, -h :HMI, -d :DATA_HMI" << std::endl;
 		return 1;
 	}
-	const char* com_port = argv[1];
-	const char* type_file = argv[2];
-	const char* filePath = argv[3];
 
-	bool port_found = false;
 
 	CommPortDM_Thread thread(com_port, filePath);
 
-	std::cerr << "Selected " << com_port << " file: " << filePath << std::endl;
+	std::cout << "Selected " << com_port << " file: " << filePath << std::endl;
 	auto start_timer = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed_timer{};
 
-	std::cerr << "Please connect USB and turn board on in 10 secs" << std::endl;
+	std::cout << "Please connect USB and turn board on in 10 secs" << std::endl;
 	
 	while (port_found != true && COM_CHECK_TIMEOUT > (elapsed_timer.count())) {
 	
@@ -84,19 +84,19 @@ int main(int argc, char* argv[]) {
 		{
 
 		case 'p':
-			if (thread.IECAppUpgrade(true) == 0) success == true;
+			success_int_value = thread.IECAppUpgrade(true);
 			break;
 		case 'h':
 			//thread.StartHMIUpgrade(nullptr, com_port, filePath);
-			if (thread.HMIAppUpgrade(true) == 0) success == true;
+			success_int_value = thread.HMIAppUpgrade(true);
 			break;
 		case 'd':
 			//thread.StartHMIUgData(nullptr, com_port, filePath);
-			if (thread.HMIDataUpgrade(true) == 0) success == true;
+			success_int_value = thread.HMIDataUpgrade(true);
 			break;
 
 		default:
-			success = false;
+			success_int_value = 1;
 			std::cerr << "Invalid type file" << std::endl;
 			break;
 		}
@@ -104,19 +104,19 @@ int main(int argc, char* argv[]) {
 	} 
 	else if (elapsed_timer.count() >= COM_CHECK_TIMEOUT) {
 		std::cerr << "Time is up! Selected " << com_port << " NOT FOUND" << std::endl;
+		return 1;
 	}
 	else {
 		std::cerr << "Something gone wrong. " << std::endl;
+		return 1;
 	}
 
-
-
-	if (success == true) {
+	if (success_int_value == 0) {
 		std::cout << "Download succeeded." << std::endl;
 	}
 	else {
 		std::cerr << "Download failed." << std::endl;
-		return 2;
+		return 1;
 	}
 
 	return 0;
@@ -149,7 +149,7 @@ CommPortDM* serialport_com = nullptr;
 
 						   if (com_port.compare(tmp_sys_str) == 0) {
 
-							   std::cerr << "Port " << tmp_sys_str << " found." << std::endl;
+							   std::cout << "Port " << tmp_sys_str << " found." << std::endl;
 							   found_port = true;
 							   break;
 						   }
