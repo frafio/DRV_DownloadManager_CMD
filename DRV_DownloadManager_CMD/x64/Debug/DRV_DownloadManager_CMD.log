@@ -1,7 +1,0 @@
-﻿  CommPortDM_Thread.cpp
-  XMCLoad_API.cpp
-C:\Work\VS_workspace\DRV_DownloadManager_CMD\DRV_DownloadManager_CMD\XMCLoad_API.cpp(731,20): warning C4244: '+=': conversione da 'std::streamsize' a 'unsigned int'. Possibile perdita di dati.
-C:\Work\VS_workspace\DRV_DownloadManager_CMD\DRV_DownloadManager_CMD\XMCLoad_API.cpp(732,19): warning C4244: '-=': conversione da 'std::streamsize' a 'unsigned long'. Possibile perdita di dati.
-C:\Work\VS_workspace\DRV_DownloadManager_CMD\DRV_DownloadManager_CMD\XMCLoad_API.cpp(738,21): warning C4244: '+=': conversione da 'std::streamsize' a 'uint32_t'. Possibile perdita di dati.
-  Generazione del codice in corso...
-  DRV_DownloadManager_CMD.vcxproj -> C:\Work\VS_workspace\DRV_DownloadManager_CMD\x64\Debug\DRV_DownloadManager_CMD.exe
