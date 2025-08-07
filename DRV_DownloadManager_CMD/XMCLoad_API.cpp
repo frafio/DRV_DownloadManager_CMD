@@ -110,13 +110,17 @@ unsigned int XMCLAPI_Init_Uart(CommPortDM* pcom, std::string stdstrPortName, DWO
 
 	  //sprintf_s(portString, "\\\\.\\%s", cPortName);
 	  //sprintf_s(portString, "%s", wchPortName);
-	pcom->SetBaudRate(dwBaudrate);
+	//pcom->SetBaudRate(dwBaudrate);
 	pcom->SetCommPort(stdstrPortName);
 	pcom->OpenCommPort();
+	if (pcom->isOpen()) {
+		pcom->FlushCommPort();
+		return BSL_NO_ERROR;
+	}
+	else {
+		return ERROR_BSL_COMINIT;
+	}
 
-	pcom->FlushCommPort();
-
-	return BSL_NO_ERROR;
 
 }
 
@@ -315,8 +319,8 @@ unsigned int XMCLAPI_Bl_Send_Header(CommPortDM* pcom, BSL_HEADER bslHeader)
 	pcom->WriteBuffer(&chWrite[0], 16);
 
 
-	Sleep(10);
-	for (i = 0; i < 1000; i++) {
+	Sleep(1);
+	for (i = 0; i < 100000; i++) {
 		if (pcom->ReadBytes(chRead, 1)) {
 			if ((chRead[0] == 0x55) ||
 				(chRead[0] == ERROR_BSL_MODE) ||
@@ -327,10 +331,15 @@ unsigned int XMCLAPI_Bl_Send_Header(CommPortDM* pcom, BSL_HEADER bslHeader)
 				(chRead[0] == ERROR_BSL_ERASE) ||
 				(chRead[0] == ERROR_BSL_PROTECTION))
 				break;
+			else if (chRead[0] == ERROR_BSL_USB_TIMEOUT) {
+				std::cout << "Sending again header" << std::endl;
+				pcom->WriteBuffer(&chWrite[0], 16);
+				i = 0;
+			}
 		}
 	}
 
-	Sleep(20);
+	Sleep(1);
 
 	if (chRead[0] == 0x55)
 		return BSL_NO_ERROR;
@@ -375,8 +384,7 @@ unsigned int XMCLAPI_Bl_Send_EOT(CommPortDM* pcom)
 
 	pcom->WriteBuffer(&chWrite[0], 16);
 
-	Sleep(10);
-	for (i = 0; i < 1000; i++) {
+	for (i = 0; i < 100000; i++) {
 		if (pcom->ReadBytes(chRead, 1)) {
 			if ((chRead[0] == 0x55) ||
 				(chRead[0] == ERROR_BSL_MODE) ||
@@ -386,7 +394,13 @@ unsigned int XMCLAPI_Bl_Send_EOT(CommPortDM* pcom)
 				(chRead[0] == ERROR_BSL_PROGRAM) ||
 				(chRead[0] == ERROR_BSL_ERASE) ||
 				(chRead[0] == ERROR_BSL_PROTECTION)) break;
+			else if (chRead[0] == ERROR_BSL_USB_TIMEOUT) {
+				std::cout << "Sending again EOT" << std::endl;
+				pcom->WriteBuffer(&chWrite[0], 16);
+				i = 0;
+			}
 		}
+
 	}
 
 	if (chRead[0] == 0x55)
@@ -422,10 +436,6 @@ unsigned int XMCLAPI_Bl_Send_Data(CommPortDM* pcom, BSL_DATA bslData)
 	unsigned int i;
 	DWORD dwNumOfBytes = 0;
 
-	static int wcnt;
-	static int rcnt1;
-	static int rcnt2;
-
 	chWrite[0] = 0x01;
 	chWrite[1] = bslData.verification;
 
@@ -441,10 +451,9 @@ unsigned int XMCLAPI_Bl_Send_Data(CommPortDM* pcom, BSL_DATA bslData)
 	chWrite[DATA_BYTE_TO_LOAD + 7] = chksum;
 	pcom->WriteBuffer(&chWrite[0], DATA_BYTE_TO_LOAD + 8);
 
-
-	wcnt++;
-	Sleep(10);
-	for (i = 0; i < 1000; i++) {
+	//Sleep(1);
+	//std::cout << "write" << std::endl;
+	for (i = 0; i < 100000; i++) {
 		if (pcom->ReadBytes(chRead, 1)) {
 			if ((chRead[0] == 0x55) ||
 				(chRead[0] == ERROR_BSL_BLOCK_TYPE) ||
@@ -453,6 +462,11 @@ unsigned int XMCLAPI_Bl_Send_Data(CommPortDM* pcom, BSL_DATA bslData)
 				(chRead[0] == ERROR_BSL_PROGRAM) ||
 				(chRead[0] == ERROR_BSL_VERIFICATION))
 				break;
+			else if (chRead[0] == ERROR_BSL_USB_TIMEOUT) {
+				std::cout << "Sending again data" << std::endl;
+				pcom->WriteBuffer(&chWrite[0], DATA_BYTE_TO_LOAD + 8);
+				i = 0;
+			}
 		}
 	}
 
@@ -539,6 +553,7 @@ unsigned int XMCLAPI_Bl_Erase_Flash(void* handle, CommPortDM* pcom, BSL_DOWNLOAD
 			if (bslDownload.verbose) {
 				sprintf_s(outputstr, "\nErasing sector 0x%08X (This may take a few seconds)... ", bslHeader.startAddress);
 				//DRVDownloadManager::MainForm::MainForm_ToOutputTbx(outputstr, true);
+				std::cout << outputstr << std::endl;
 			}
 			result = XMCLAPI_Bl_Send_Header(pcom, bslHeader);
 
@@ -644,7 +659,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 	/* Note the use of \\ for path separators in text strings */
 	size_t open_res = 0;
 	//FILE* hexFile;
-	Sleep(500);
+	Sleep(100);
 	unsigned long sizeEndFile;
 	if (bslDownload.HMI > 0 && bslDownload.IEC == true) {
 		/* Allowed values of the ccs flag are UNICODE, UTF-8, and UTF-16LE. If no value is specified for ccs, fopen_s uses ANSI encoding. */
@@ -720,7 +735,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 		while (hexfilebin) {
 			hexfilebin.read(&hexLine[0], read_per_time);
 			std::streamsize hexCountRead = hexfilebin.gcount();
-
+			hexCount = hexCountRead;
 
 				if (sizeEndFile <= 0) {
 					sprintf_s(outputstr, "readch EOF at 0x%08X ", page_addr);
@@ -743,13 +758,11 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 				//send data block
 				for (j = 0; j < DATA_BYTE_TO_LOAD; j++)
 					writeBuffer[j] = hexArray[j];
-
+				
 				if (bslDownload.verbose) {
-					if ((tot_num_bytes % 65536) == 0) {
 						sprintf_s(outputstr, "\nProgramming data block to address 0x%08X ", page_addr);
 						std::cout << outputstr << std::endl;
-						//DRVDownloadManager::MainForm::MainForm_ToOutputTbx(outputstr, true);
-					}
+					
 				}
 
 				if (bslDownload.ser_interface == ASC_INTERFACE)
@@ -966,7 +979,7 @@ unsigned int XMCLAPI_Bl_Download_Pflash(void* handle, CommPortDM_Thread* thread,
 		} //end of while
 
 	}
-	Sleep(10);
+	Sleep(1);
 
 	if ((num_of_bytes > 0 || hexCount > 0 ) && bslDownload.IEC == true) {
 
@@ -1175,8 +1188,8 @@ const char* XMCLAPI_Error_Message(unsigned int uiError) {
 	case ERROR_HEXFILE:
 		message = "Invalid hexfile";
 		break;
-	case ERROR_CANBUS:
-		message = "CAN Bus error";
+	case ERROR_BSL_USB_TIMEOUT:
+		message = "Timeout USB Bus error";
 		break;
 	default:
 		message = "Unknown error";

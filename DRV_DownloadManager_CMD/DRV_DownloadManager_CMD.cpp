@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
 	const char* filePath = argv[3];
 
 	bool port_found = false;
-	int success_int_value = 1;
+	bool success_value = false;
 
 	// Simulate some work
 
@@ -84,19 +84,19 @@ int main(int argc, char* argv[]) {
 		{
 
 		case 'p':
-			success_int_value = thread.IECAppUpgrade(true);
+			success_value = thread.IECAppUpgrade(true);
 			break;
 		case 'h':
 			//thread.StartHMIUpgrade(nullptr, com_port, filePath);
-			success_int_value = thread.HMIAppUpgrade(true);
+			success_value = thread.HMIAppUpgrade(true);
 			break;
 		case 'd':
 			//thread.StartHMIUgData(nullptr, com_port, filePath);
-			success_int_value = thread.HMIDataUpgrade(true);
+			success_value = thread.HMIDataUpgrade(true);
 			break;
 
 		default:
-			success_int_value = 1;
+			success_value = false;
 			std::cerr << "Invalid type file" << std::endl;
 			break;
 		}
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	if (success_int_value == 0) {
+	if (success_value == true) {
 		std::cout << "Download succeeded." << std::endl;
 	}
 	else {

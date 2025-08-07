@@ -20,12 +20,9 @@ public:
     int WriteBuffer(BYTE* buffer, unsigned int ByteCount);
     void FlushCommPort(void);
     void SetBaudRate(unsigned int newBaud);
+    void ForceClosePort(void);
     void SetCommPort(std::string port);
     int ReadBytes(BYTE* buffer, unsigned int MaxBytes);
-
-    static CommPortDM* getInstance() {
-        return (new CommPortDM());
-    }
 
     bool GetConnected()
     {
@@ -36,11 +33,16 @@ public:
     { // allow access to the handle in case the user needs to do something hardcore. Avoid this if possible
         return m_CommPortDM_Handle;
     }
+    bool isOpen() {
+        return m_CommPortDM_Open;
+    }
 
     void VerifyOpen()
     {
-        if (!m_CommPortDM_Open)
+        if (!m_CommPortDM_Open) {
+            std::cerr << "ERROR PORT_NOT_OPEN" << std::endl;
             throw CommPortDMError::CommPortDMError(CommPortDMError::PORT_NOT_OPEN);
+        }
     }
 
 private:
@@ -55,11 +57,13 @@ private:
 
     void VerifyClosed()
     {
-        if (m_CommPortDM_Open)
-            throw CommPortDMError::CommPortDMError(CommPortDMError::PORT_ALREADY_OPEN);
+        if (m_CommPortDM_Open){
+            std::cerr << "ERROR PORT_ALREADY_OPEN" << std::endl;
+                throw CommPortDMError::CommPortDMError(CommPortDMError::PORT_ALREADY_OPEN);
+            }
     }
     bool          m_CommPortDM_Open;
-    COMMTIMEOUTS  m_CommPortDM_TimeOuts;
+    //COMMTIMEOUTS  m_CommPortDM_TimeOuts;
     std::string   m_CommPortDM_COM;
     DCB           m_CommPortDM_dcb;        // a DCB is a windows structure used for configuring the port
     void*        m_CommPortDM_Handle;       // handle to the comm port.
