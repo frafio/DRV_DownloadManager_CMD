@@ -60,7 +60,7 @@ typedef enum bsl_error_codes_t {
 	ERROR_BSL_COMINIT = 0xF3,
 	ERROR_BSL_INIT = 0xF2,
 	ERROR_HEXFILE = 0xF1,
-	ERROR_CANBUS = 0xE9
+	ERROR_BSL_USB_TIMEOUT = 0xE9
 } bsl_error_codes_t;
 
 typedef struct BSL_HEADER {

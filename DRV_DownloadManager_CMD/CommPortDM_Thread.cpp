@@ -20,7 +20,7 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 	stm32L4_micro = true;
 
 	if (commPortDM_pointer == nullptr) {
-		commPortDM_pointer = CommPortDM::getInstance();
+		commPortDM_pointer = new CommPortDM();
 	}
 
 	commPortDM_pointer->SetCommPort(commport);
@@ -48,33 +48,30 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 
 		if (info) {
 
-			std::cerr << "\nStart XMCLoad module " << std::endl;
+			std::cout << "\nStart XMCLoad module " << std::endl;
 			/********* show info to main console  **************/
 			//sprintf(outputString, "Custom XMCLoad");
 			//SendMessage(mainHandle, WM_CONSOLE, (unsigned int)outputString, 0);
 			outputString = "\nComm Port = " + comPortName;
-			std::cerr << outputString << std::endl;
+			std::cout << outputString << std::endl;
 			//SendMessage(mainHandle, WM_CONSOLE, (unsigned int)outputString, 0);
 			dwBaudrate = baudrate;
 			//outputString = "\nBaud Rate = " + dwBaudrate;
-			//std::cerr << outputString << std::endl;
+			std::cout << outputString << std::endl;
 			//SendMessage(mainHandle, WM_CONSOLE, (unsigned int)outputString, 0);
 			//DBOUT("\nInitializing comm port... ");
-			std::cerr << "\nInitializing comm port...  " << std::endl;
+			std::cout << "\nInitializing comm port...  " << std::endl;
 			/******************************************************/
 		}
 		/********** initializes the COM port *********************/
 		//wstring tmp_portname_wstr = std::wstring(tmp_portname_stdstr.begin(), tmp_portname_stdstr.end()).c_str();
 		if ((result = XMCLAPI_Init_Uart(commPortDM_pointer, comPortName, dwBaudrate)) != BSL_NO_ERROR) {
 			std::cerr << "\nERROR: COM Port initialization failed - quitting\n " << std::endl;
-			//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_ERR, 0);
-			//SEND_INFO_TO_MAIN_FORM(INFO_IEC_ERASE_END_ERR, 0);
-			//SEND_INFO_TO_MAIN_FORM(INFO_FW_UPGRADE_END_ERR, 0);
 			return false;
 		}
 		else if (info) {
 
-			std::cerr << "\nCOM Port initialized " << std::endl;
+			std::cout << "\nCOM Port initialized " << std::endl;
 			return true;
 		}
 		/******************************************************/
@@ -181,7 +178,7 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 			if (FWUpgrade) {
 				//worker->ReportProgress(count, "\nFirmware Upgrade Start...");
 				if (FirmwareUpgrade(hexArray)) {
-					std::cerr << "\nFirmware Upgrade Done " << std::endl;
+					std::cout << "\nFirmware Upgrade Done " << std::endl;
 					FWUpgrade = false;
 					isTerminated = true;
 				}
@@ -245,25 +242,29 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 	*/
 	bool CommPortDM_Thread::HMIDataUpgrade(bool st)
 	{
+		bool ret = false;
+
 		if (SendCommand(CMD_HMI_UG_DATA)) {
-			std::cerr << "\nIEC DATA Upgrade Started " << std::endl;
+			std::cout << "\nIEC DATA Upgrade Started " << std::endl;
 			if (XMCLoad(nullptr, this, commPortDM_pointer, fileToDownload.c_str(),
 				/* filesize */
 				true, true, 2) == 0)
 			{
-				std::cerr << "\nIEC UPGRADE COMPLETED SUCCESFULLY " << std::endl;
+				std::cout << "\nIEC UPGRADE COMPLETED SUCCESFULLY " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_OK, 0);
+				ret = true;
 			}
 			else {
 				std::cerr << "\nIEC UPGRADE ERROR " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_ERR, 0);
+				ret = false;
 			}
 		}
 		if (XMCLAPI_Close_Interface(commPortDM_pointer) == BSL_NO_ERROR) {
-			return 0;
+			return ret;
 		}
 
-		return 1;
+		return false;
 	}
 
 	/**
@@ -280,23 +281,27 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 	*/
 	bool CommPortDM_Thread::HMIAppUpgrade(bool st)
 	{
+		bool ret = false;
+
 		if (SendCommand(CMD_HMI_UPGRADE)) {
-			std::cerr << "\nIEC APP Upgrade Started " << std::endl;
+			std::cout << "\nIEC APP Upgrade Started " << std::endl;
 			if (XMCLoad(nullptr, this, commPortDM_pointer, fileToDownload.c_str(), true, true, 1) == 0) {
-				std::cerr << "\nIEC UPGRADE COMPLETED SUCCESFULLY " << std::endl;
+				std::cout << "\nIEC UPGRADE COMPLETED SUCCESFULLY " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_OK, 0);
+				ret = true;
 			}
 			else {
 				std::cerr << "\nIEC UPGRADE ERROR " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_ERR, 0);
+				ret = false;
 			}
 		}
 
 		if (XMCLAPI_Close_Interface(commPortDM_pointer) == BSL_NO_ERROR) {
-			return 0;
+			return ret;
 		}
 
-		return 1;
+		return false;
 	}
 
 	/**
@@ -313,23 +318,29 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 	*/
 	bool CommPortDM_Thread::IECAppUpgrade(bool st)
 	{
+		bool ret = false;
+
 		if (SendCommand(CMD_IEC_UPGRADE)) {
-			std::cerr << "\nIEC APP Upgrade Started " << std::endl;
+			std::cout << "\nIEC APP Upgrade Started " << std::endl;
 			if (XMCLoad(nullptr, this, commPortDM_pointer, fileToDownload.c_str(), true, true, 0) == 0) {
-				std::cerr << "\nIEC UPGRADE COMPLETED SUCCESFULLY " << std::endl;
+				std::cout << "\nIEC UPGRADE COMPLETED SUCCESFULLY " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_OK, 0);
+				ret = true;
 			}
 			else {
 				std::cerr << "\nIEC UPGRADE ERROR " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_UPGRADE_END_ERR, 0);
+				ret = false;
 			}
 		}
 
+
 		if (XMCLAPI_Close_Interface(commPortDM_pointer) == BSL_NO_ERROR) {
-			return 0;
+
+			return ret;
 		}
 
-		return 1;
+		return false;
 	}
 
 	/**
@@ -345,9 +356,10 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 		BSL_HEADER   bslHeader;
 		unsigned int result;
 
+		bool ret = false;
 
 		if (SendCommand(CMD_IEC_ERASE)) {
-			std::cerr << "\nIEC APP Erase Start " << std::endl;
+			std::cout << "\nIEC APP Erase Start " << std::endl;
 			if (st == true) {
 				bslDownload.device = STM32L4;
 			}
@@ -357,9 +369,10 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 			if (result != BSL_NO_ERROR) {
 				std::cerr << "\nIEC APP ERASE ERROR " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_ERASE_END_ERR, 0);
+				ret = false;
 			}
 			else {
-				std::cerr << "\nIEC APP ERASED SUCCESFULLY " << std::endl;
+				std::cout << "\nIEC APP ERASED SUCCESFULLY " << std::endl;
 				//SEND_INFO_TO_MAIN_FORM(INFO_IEC_ERASE_END_OK, 0);
 				bslHeader.mode = BSL_RUN_FROM_FLASH;
 				result = XMCLAPI_Bl_Send_Header(commPortDM_pointer, bslHeader);
@@ -368,17 +381,18 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 					string tmp_str = XMCLAPI_Error_Message(result);
 					outputString = "\nERROR: Restarting failed. Reason: " + tmp_str;
 					std::cerr << outputString << std::endl;
+					ret = false;
 				}
-				std::cerr << "\nRESTARTING..., WAIT GREEN LED " << std::endl;
+				std::cout << "\nRESTARTING..., WAIT GREEN LED " << std::endl;
 
 			}
 
 		}
 
 		if (XMCLAPI_Close_Interface(commPortDM_pointer) == BSL_NO_ERROR) {
-			return 0;
+			return ret;
 		}
-		return 1;
+		return false;
 	}
 
 	bool CommPortDM_Thread::FirmwareUpgrade(unsigned char* hex_array)
@@ -387,6 +401,7 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 		DWORD appLength;
 		unsigned int hex_address, num_of_bytes;
 		int init_port_attempt = 0;
+		bool ret = false;
 
 		// if no loader to download then wait command request from target
 
@@ -405,25 +420,28 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 							std::cerr << "\nFW Upgrade Error " << std::endl;
 							//SEND_INFO_TO_MAIN_FORM(INFO_FW_UPGRADE_END_ERR, 0);
 							fail = true;
+							ret = false;
 						}
 					}
 					if (fail == false) {
 
-						std::cerr << "\nInitializing built in loader... " << std::endl;
+						std::cout << "\nInitializing built in loader... " << std::endl;
 						if (XMCLAPI_Init_ASC_BSL(commPortDM_pointer) != BSL_NO_ERROR) {
 							std::cerr << "\nBuilt in loader initialization fail  " << std::endl;
 							fail = true;
+							ret = false;
 						}
-						std::cerr << "\nDone  " << std::endl;
+						std::cout << "\nDone  " << std::endl;
+						ret = true;
 					}
 					if (fail == false) {
 						appLength = 16384;
-						std::cerr << "\nSending loader length... " << std::endl;
+						std::cout << "\nSending loader length... " << std::endl;
 						if (XMCLAPI_Send_4_Length(commPortDM_pointer, appLength) != BSL_NO_ERROR) {
 							std::cerr << "\nSend loader length failed  " << std::endl;
 							fail = true;
 						}
-						std::cerr << "\nDone " << std::endl;
+						std::cout << "\nDone " << std::endl;
 					}
 					if (fail == false) {
 						if (XMCLAPI_Make_Flash_Image(loaderToDownload.c_str(), hex_array, appLength, &hex_address, &num_of_bytes) != BSL_NO_ERROR) {
@@ -432,7 +450,7 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 						}
 					}
 					if (fail == false) {
-						std::cerr << "\nSending ASCLoader... " << std::endl;
+						std::cout << "\nSending ASCLoader... " << std::endl;
 
 						if (XMCLAPI_Send_ASCloader(commPortDM_pointer, hex_array, appLength) != BSL_NO_ERROR) {
 							std::cerr << "\nInstalling ASCLoader failed " << std::endl;
@@ -456,12 +474,14 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 		}
 		*/
 		if (fail == false) {
-			std::cerr << "\nFW Upgrade Started " << std::endl;
+			std::cout << "\nFW Upgrade Started " << std::endl;
 			if (XMCLoad(nullptr, this, commPortDM_pointer, fileToDownload.c_str(), false, true, 0) == 0) {
-				std::cerr << "\nFW Upgrade Success " << std::endl;
+				std::cout << "\nFW Upgrade Success " << std::endl;
+				ret = true;
 			}
 			else {
 				std::cerr << "\nFW Upgrade Error " << std::endl;
+				ret = false;
 			}
 		}
 
@@ -480,7 +500,7 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 
 
 		strcpy_s(tx_buffer, "+++AT\r");
-		std::cerr << "\nEntering AT commands... " << std::endl;
+		std::cout << "\nEntering AT commands... " << std::endl;
 		_flushall();
 		commPortDM_pointer->WriteBuffer((BYTE*)(&tx_buffer[0]), 7);
 		Sleep(100);
@@ -490,7 +510,7 @@ CommPortDM_Thread::CommPortDM_Thread(std::string commport, std::string filepath)
 			return false;
 		}
 		strcpy_s(tx_buffer, "AT#BOT\r");
-		std::cerr << "\nResetting target " << std::endl;
+		std::cout << "\nResetting target " << std::endl;
 		commPortDM_pointer->WriteBuffer((BYTE*)(&tx_buffer[0]), 7);
 		Sleep(100);
 		_flushall();
